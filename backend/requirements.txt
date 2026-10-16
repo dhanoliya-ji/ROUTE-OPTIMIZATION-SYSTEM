@@ -9,7 +9,7 @@ psycopg[binary]==3.2.3
 alembic==1.14.0
 geoalchemy2==0.16.0
 redis==5.2.1
-pyjwt==2.10.1
+pyjwt==2.15.0
 passlib[bcrypt]==1.7.4
 # passlib 1.7.4 reads bcrypt.__about__, which bcrypt >= 4.1 removed. Pinning to
 # the last compatible release keeps startup logs clean (the error is trapped but noisy).
