@@ -29,9 +29,9 @@ on:
         description: Pull request number to review
         required: true
 
+# Read-only unless a job asks for more.
 permissions:
   contents: read
-  pull-requests: write
 
 concurrency:
   group: ai-pr-review-${{ github.event.pull_request.number || inputs.pr }}
@@ -49,6 +49,9 @@ jobs:
   review:
     name: Review
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     timeout-minutes: 20
     # Skips drafts, Dependabot (it cannot read repository secrets) and forks
     # (no secrets either, and a read-only token that could not comment).
@@ -72,7 +75,7 @@ jobs:
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         if: steps.key.outputs.skip != 'true'
         with:
           fetch-depth: 0

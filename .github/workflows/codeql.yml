@@ -24,15 +24,18 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Read-only unless a job asks for more.
 permissions:
   contents: read
-  actions: read
-  security-events: write
 
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
     timeout-minutes: 30
 
     strategy:
@@ -42,9 +45,9 @@ jobs:
         language: [python, javascript-typescript, actions]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: github/codeql-action/init@v4
+      - uses: github/codeql-action/init@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4
         with:
           languages: ${{ matrix.language }}
           build-mode: none
@@ -52,6 +55,6 @@ jobs:
           # precision-tuned, so it does not bury real findings in noise.
           queries: security-extended
 
-      - uses: github/codeql-action/analyze@v4
+      - uses: github/codeql-action/analyze@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4
         with:
           category: /language:${{ matrix.language }}
