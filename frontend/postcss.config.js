@@ -6,7 +6,7 @@ export default {
   plugins: {
     // Generates the utility classes actually used, based on the `content` globs
     // in tailwind.config.js.
-    tailwindcss: {},
+    "@tailwindcss/postcss": {},
     // Adds vendor prefixes for the browsers in the project's browserslist range.
     autoprefixer: {},
   },

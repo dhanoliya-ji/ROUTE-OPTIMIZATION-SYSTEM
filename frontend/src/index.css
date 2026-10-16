@@ -1,9 +1,8 @@
-/* Tailwind's three layers, in required order: base resets, then component
-   classes, then utilities — so a utility can always override a component
-   class, which is what makes `className="input max-w-xs"` work. */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind v4 reads this project config to keep the existing custom palette
+   and utility names intact. */
+@config "../tailwind.config.js";
+/* Tailwind's CSS entrypoint: base resets, components, then utilities. */
+@import "tailwindcss";
 
 /* Light only. Tells the browser to render native controls (scrollbars,
    form widgets) in light mode rather than following the OS setting, which
