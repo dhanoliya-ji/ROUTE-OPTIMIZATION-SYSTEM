@@ -13,7 +13,7 @@ pyjwt==2.10.1
 passlib[bcrypt]==1.7.4
 # passlib 1.7.4 reads bcrypt.__about__, which bcrypt >= 4.1 removed. Pinning to
 # the last compatible release keeps startup logs clean (the error is trapped but noisy).
-bcrypt==4.0.1
+bcrypt==5.0.0
 python-multipart==0.0.20
 httpx==0.28.1
 ortools==9.11.4210
