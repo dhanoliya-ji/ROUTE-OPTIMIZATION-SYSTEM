@@ -19,7 +19,7 @@ statuses and the analytics are all views of the same rows.
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 
 from sqlalchemy import select
