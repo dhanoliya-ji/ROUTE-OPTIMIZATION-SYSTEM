@@ -10,6 +10,7 @@ import { act, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
+import App from "./App";
 import { useAuth } from "./stores/auth";
 import { NCR_CENTER, ROUTE_COLORS, coloredDot, depotIcon, vehicleIcon } from "./utils/map";
 
@@ -109,6 +110,18 @@ describe("the auth gate has three outcomes", () => {
     expect(screen.getByText("the dashboard")).toBeInTheDocument();
     // ...and it never flashed the redirect on the way through.
     expect(screen.queryByTestId("redirected")).not.toBeInTheDocument();
+  });
+});
+
+describe("the app route table", () => {
+  it("renders /login without entering the protected shell", () => {
+    useAuth.setState({ user: null, loading: false });
+    render(
+      <MemoryRouter initialEntries={["/login"]}>
+        <App />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole("button", { name: "Sign in" })).toBeInTheDocument();
   });
 });
 
