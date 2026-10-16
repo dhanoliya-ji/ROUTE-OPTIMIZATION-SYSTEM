@@ -6,6 +6,7 @@
  * nearly invisible in development — you rarely hard-refresh — so it is worth
  * pinning directly rather than through a whole rendered route tree.
  */
+import type { ReactElement } from "react";
 import { act, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it } from "vitest";
@@ -21,7 +22,7 @@ import { NCR_CENTER, ROUTE_COLORS, coloredDot, depotIcon, vehicleIcon } from "./
  * than the app. The trade-off is stated so a future reader knows to keep the
  * two in step — the logic is three lines.
  */
-function Protected({ children }: { children: JSX.Element }) {
+function Protected({ children }: { children: ReactElement }) {
   const { user, loading } = useAuth();
   if (loading) return <div>Loading…</div>;
   if (!user) return <div data-testid="redirected">redirected to /login</div>;
