@@ -2,7 +2,7 @@
 //
 // Two responsibilities and no rendering of its own: decide which screen a URL
 // maps to, and refuse every screen but /login until we know who is signed in.
-import { useEffect } from "react";
+import { useEffect, type ReactElement } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./stores/auth";
 import { ToastHost } from "./components/ui";
@@ -27,7 +27,7 @@ import Settings from "./pages/Settings";
  * `loading` branch, that in-between moment looks identical to "signed out" and
  * a signed-in user gets bounced to /login on every reload.
  */
-function Protected({ children }: { children: JSX.Element }) {
+function Protected({ children }: { children: ReactElement }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="p-10 text-ink-500">Loading…</div>; // don't decide yet
   if (!user) return <Navigate to="/login" replace />; // decided: signed out
