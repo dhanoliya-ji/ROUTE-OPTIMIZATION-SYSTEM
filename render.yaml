@@ -4,21 +4,22 @@
 #   New → Blueprint → pick this repo → Apply. Render reads this file and
 #   provisions everything below.
 #
-# Services: managed Postgres (PostGIS), Key Value (Redis), backend (Docker),
-# frontend (static site).
+# Services: Key Value (Redis), backend (Docker), frontend (static site).
+# The database lives on Neon, not Render -- see below.
 #
 # Free web services sleep after ~15 min idle and cold-start in ~50s — fine for
 # a portfolio demo, not for production traffic.
 #
 # Every cross-service URL is wired with `fromService`, so this blueprint works
 # unchanged even when Render appends a suffix to a service name (which it does
-# when a name is already taken globally). Nothing here needs hand-editing.
-
-databases:
-  - name: routeos-db
-    plan: free
-    postgresMajorVersion: "16"
-    # PostGIS is enabled by the first Alembic migration (CREATE EXTENSION postgis).
+# when a name is already taken globally).
+#
+# THE DATABASE IS ON NEON, NOT RENDER
+# Render's free Postgres is deleted 30 days after it is created (plus a
+# 14-day grace period). That is what took the first live demo down: the
+# database vanished, and the backend's entrypoint waited for it forever.
+# Neon's free plan does not expire, and supports PostGIS. So the one value
+# this blueprint asks for is DATABASE_URL -- see DEPLOY.md for the 3 steps.
 
 services:
   # --- Redis / Key Value ---
@@ -36,10 +37,8 @@ services:
     dockerContext: ./backend
     healthCheckPath: /health
     envVars:
-      - key: DATABASE_URL          # standard postgres URL; the app coerces the driver
-        fromDatabase:
-          name: routeos-db
-          property: connectionString
+      - key: DATABASE_URL          # Neon connection string, pasted once (sync: false)
+        sync: false                # the app adapts it for asyncpg and psycopg itself
       - key: REDIS_URL
         fromService:
           type: keyvalue

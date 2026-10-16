@@ -1,0 +1,90 @@
+# Demo uptime -- checks the live demo once a day and opens an issue if it is down.
+#
+# Free hosting fails quietly: a free database expires, or the month's free
+# instance hours run out and every service is suspended. Nobody notices until
+# someone clicks the demo link. This notices first, and closes its own issue
+# once everything answers again.
+#
+# Once a day on purpose: every check wakes a sleeping free service, and that
+# time counts against Render's 750 free hours per month.
+
+name: Demo uptime
+
+on:
+  schedule:
+    - cron: "17 6 * * *"   # daily, 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check the live demo
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      URLS: |
+        Frontend https://routeos-frontend.onrender.com
+        Backend https://routeos-backend-h5x6.onrender.com/health
+
+    steps:
+      - name: Probe every URL, allowing for a cold start
+        id: probe
+        run: |
+          : > report.md
+          down=0
+          while read -r name url; do
+            [ -z "$url" ] && continue
+            code=000
+            # A sleeping free service takes ~50-60s to wake, so: two tries,
+            # up to 150s each, before calling it down.
+            for attempt in 1 2; do
+              code=$(curl -s -o /dev/null -m 150 -w '%{http_code}' "$url") || code=000
+              [ "$code" = "200" ] && break
+              sleep 20
+            done
+            if [ "$code" = "200" ]; then
+              echo "- ✅ **$name**: $url" >> report.md
+            else
+              echo "- ❌ **$name**: $url (HTTP $code)" >> report.md
+              down=1
+            fi
+          done <<< "$URLS"
+          cat report.md
+          echo "down=$down" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update the outage issue
+        if: steps.probe.outputs.down == '1'
+        run: |
+          gh label create uptime --color d73a4a --description "Live demo is down" -R "$REPO" 2>/dev/null || true
+          {
+            echo "The daily check could not reach part of the live demo:"
+            echo
+            cat report.md
+            echo
+            echo "**Usual causes on free hosting**"
+            echo "- The database expired or was suspended (Render's free Postgres is deleted after 30 days)."
+            echo "- Render's 750 free hours for the month ran out, so every free service is suspended until the 1st."
+            echo "- A deploy failed: check the service's **Events** and **Logs** in the Render dashboard."
+            echo
+            echo "Recovery steps: [DEPLOY.md](../blob/HEAD/DEPLOY.md). This issue closes itself once every URL answers again."
+          } > body.md
+          existing=$(gh issue list -R "$REPO" --label uptime --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" -R "$REPO" --body-file body.md
+          else
+            gh issue create -R "$REPO" --title "Live demo is down" --label uptime --body-file body.md
+          fi
+
+      - name: Close the outage issue once everything is back
+        if: steps.probe.outputs.down == '0'
+        run: |
+          for n in $(gh issue list -R "$REPO" --label uptime --state open --json number --jq '.[].number'); do
+            { echo "Everything answers again:"; echo; cat report.md; } > body.md
+            gh issue close "$n" -R "$REPO" --comment "$(cat body.md)"
+          done

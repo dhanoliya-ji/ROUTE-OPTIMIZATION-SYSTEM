@@ -18,9 +18,32 @@ Field names map to env vars case-insensitively: ``database_url`` is read from
 from __future__ import annotations
 
 from functools import lru_cache
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+# libpq (and so psycopg) and asyncpg disagree on connection options. Neon,
+# Supabase and most managed hosts hand out libpq URLs such as
+# `...?sslmode=require&channel_binding=require`; asyncpg rejects both keys
+# ("unexpected keyword argument 'sslmode'"), so the app could not even connect.
+# asyncpg spells the TLS setting `ssl`, and has no channel_binding at all.
+_LIBPQ_ONLY_PARAMS = {"channel_binding"}
+
+
+def _with_query(url: str, transform) -> str:
+    parts = urlsplit(url)
+    pairs = transform(parse_qsl(parts.query, keep_blank_values=True))
+    return urlunsplit(parts._replace(query=urlencode(pairs)))
+
+
+def _query_for_asyncpg(pairs: list[tuple[str, str]]) -> list[tuple[str, str]]:
+    return [("ssl" if k == "sslmode" else k, v) for k, v in pairs if k not in _LIBPQ_ONLY_PARAMS]
+
+
+def _query_for_libpq(pairs: list[tuple[str, str]]) -> list[tuple[str, str]]:
+    return [("sslmode" if k == "ssl" else k, v) for k, v in pairs]
 
 
 def _to_async_url(url: str) -> str:
@@ -40,6 +63,8 @@ def _to_async_url(url: str) -> str:
         url = "postgresql://" + url[len("postgres://"):]
     if url.startswith("postgresql://"):
         url = "postgresql+asyncpg://" + url[len("postgresql://"):]
+    if url.startswith("postgresql+asyncpg://"):
+        url = _with_query(url, _query_for_asyncpg)
     return url
 
 
@@ -55,7 +80,7 @@ def _to_sync_url(url: str) -> str:
         url = "postgresql://" + url[len("postgres://"):]
     for prefix in ("postgresql+asyncpg://", "postgresql+psycopg://", "postgresql://"):
         if url.startswith(prefix):
-            return "postgresql+psycopg://" + url[len(prefix):]
+            return _with_query("postgresql+psycopg://" + url[len(prefix):], _query_for_libpq)
     # Not a postgres URL we recognise — hand it back untouched rather than
     # corrupting it. Alembic will fail with a clear driver error instead.
     return url
