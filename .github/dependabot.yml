@@ -55,6 +55,13 @@ updates:
     labels: [dependencies]
     commit-message:
       prefix: "deps(backend-docker)"
+    ignore:
+      # The Python version is a decision, not a routine update: CI tests on
+      # 3.11 (setup-python in ci.yml), so the image must run the same
+      # version. Moving to 3.14 means changing both together, on purpose.
+      # Digest and patch updates within 3.11 still come through.
+      - dependency-name: python
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
     groups:
       # One PR for every minor/patch bump in this directory, so a quiet week
       # is one PR to review rather than twelve. Major versions stay separate
@@ -71,6 +78,12 @@ updates:
     labels: [dependencies]
     commit-message:
       prefix: "deps(frontend-docker)"
+    ignore:
+      # Node majors: odd-numbered releases (23, 25, ...) are short-lived and
+      # never become LTS, and Dependabot offers them anyway. Move to the next
+      # even-numbered LTS deliberately, alongside node-version in ci.yml.
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
     groups:
       # One PR for every minor/patch bump in this directory, so a quiet week
       # is one PR to review rather than twelve. Major versions stay separate
