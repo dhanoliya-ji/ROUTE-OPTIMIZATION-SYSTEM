@@ -1,0 +1,89 @@
+# Dependabot — free GitHub bot that opens PRs to keep dependencies current.
+#
+# Security fixes arrive as soon as an advisory is published, whatever the
+# schedule below says. The weekly schedule is for ordinary version bumps.
+# Every PR it opens runs through CI, so a bump that breaks the tests shows red
+# before anyone merges it.
+
+version: 2
+updates:
+
+  - package-ecosystem: pip
+    directory: "/backend"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: [dependencies]
+    commit-message:
+      prefix: "deps(backend)"
+    groups:
+      # One PR for every minor/patch bump in this directory, so a quiet week
+      # is one PR to review rather than twelve. Major versions stay separate
+      # because those are the ones that break things.
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: "/frontend"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: [dependencies]
+    commit-message:
+      prefix: "deps(frontend)"
+    groups:
+      # One PR for every minor/patch bump in this directory, so a quiet week
+      # is one PR to review rather than twelve. Major versions stay separate
+      # because those are the ones that break things.
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: docker
+    directory: "/backend"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: [dependencies]
+    commit-message:
+      prefix: "deps(backend-docker)"
+    groups:
+      # One PR for every minor/patch bump in this directory, so a quiet week
+      # is one PR to review rather than twelve. Major versions stay separate
+      # because those are the ones that break things.
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: docker
+    directory: "/frontend"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: [dependencies]
+    commit-message:
+      prefix: "deps(frontend-docker)"
+    groups:
+      # One PR for every minor/patch bump in this directory, so a quiet week
+      # is one PR to review rather than twelve. Major versions stay separate
+      # because those are the ones that break things.
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: [dependencies]
+    commit-message:
+      prefix: "deps(ci)"
+    groups:
+      # One PR for every minor/patch bump in this directory, so a quiet week
+      # is one PR to review rather than twelve. Major versions stay separate
+      # because those are the ones that break things.
+      minor-and-patch:
+        update-types: [minor, patch]

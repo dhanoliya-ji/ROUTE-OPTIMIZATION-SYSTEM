@@ -1,0 +1,33 @@
+# Path rules for the PR labeler (.github/workflows/labeler.yml).
+
+backend:
+  - changed-files:
+      - any-glob-to-any-file: backend/**
+
+frontend:
+  - changed-files:
+      - any-glob-to-any-file: frontend/**
+
+database:
+  - changed-files:
+      - any-glob-to-any-file: [backend/alembic/**, backend/app/models/**, backend/app/db/**]
+
+optimization:
+  - changed-files:
+      - any-glob-to-any-file: [backend/app/optimization/**, backend/app/geospatial/**, backend/app/simulation/**]
+
+infra:
+  - changed-files:
+      - any-glob-to-any-file: [aws/**, "**/Dockerfile", "**/docker-compose*.yml", "**/.dockerignore"]
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file: [backend/tests/**, frontend/src/test/**, "**/*.test.ts", "**/*.test.tsx"]
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: ["**/*.md", architecture/**, docs/**]
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file: .github/**
