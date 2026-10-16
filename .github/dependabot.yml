@@ -17,6 +17,12 @@ updates:
     labels: [dependencies]
     commit-message:
       prefix: "deps(backend)"
+    ignore:
+      # Deliberately pinned in requirements.txt: passlib 1.7.4 cannot work
+      # with bcrypt >= 4.1 cleanly, and bcrypt 5 breaks every password hash.
+      # A bump to 5.0.0 was merged once and took login down; this stops it
+      # being offered again. Remove when passlib is replaced.
+      - dependency-name: bcrypt
     groups:
       # One PR for every minor/patch bump in this directory, so a quiet week
       # is one PR to review rather than twelve. Major versions stay separate
