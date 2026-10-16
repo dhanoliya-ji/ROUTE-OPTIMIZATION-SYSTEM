@@ -11,16 +11,19 @@ on:
   pull_request_target:
     types: [opened, synchronize, reopened]
 
+# Read-only unless a job asks for more.
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
   label:
     name: Label
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
-      - uses: actions/labeler@v7
+      - uses: actions/labeler@bf12e9b00b37c5c0ca2b87b79b2daf7891dbda13 # v7
         with:
           # Removes a label again when a later push no longer touches that area.
           sync-labels: true

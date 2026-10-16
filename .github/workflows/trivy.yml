@@ -34,14 +34,17 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Read-only unless a job asks for more.
 permissions:
   contents: read
-  security-events: write
 
 jobs:
   scan:
     name: Scan ${{ matrix.image.name }} image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     timeout-minutes: 45
 
     strategy:
@@ -57,7 +60,7 @@ jobs:
         # used here and give back ~20 GB, enough for an image with PyTorch.
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Build the image
         run: docker build -t scan-target:${{ matrix.image.name }} -f ${{ matrix.image.dockerfile }} ${{ matrix.image.context }}
@@ -72,11 +75,14 @@ jobs:
           format: sarif
           output: trivy-${{ matrix.image.name }}.sarif
           severity: CRITICAL,HIGH
+          # Without this, SARIF output ignores `severity` and the Security
+          # tab fills with LOW and MEDIUM findings.
+          limit-severities-for-sarif: true
           # Only report what can be fixed today by upgrading something.
           ignore-unfixed: true
           exit-code: "0"
 
-      - uses: github/codeql-action/upload-sarif@v4
+      - uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4
         with:
           sarif_file: trivy-${{ matrix.image.name }}.sarif
           category: trivy-${{ matrix.image.name }}

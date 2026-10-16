@@ -22,9 +22,9 @@ on:
   issues:
     types: [opened]
 
+# Read-only unless a job asks for more.
 permissions:
   contents: read
-  issues: write
 
 env:
   AI_BASE_URL: ${{ vars.AI_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta/openai' }}
@@ -36,6 +36,9 @@ jobs:
   triage:
     name: Triage
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     timeout-minutes: 10
     if: github.event.issue.user.type != 'Bot'
 
@@ -58,7 +61,7 @@ jobs:
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         if: steps.key.outputs.skip != 'true'
         with:
           sparse-checkout: README.md

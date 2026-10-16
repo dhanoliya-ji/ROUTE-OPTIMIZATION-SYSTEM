@@ -8,16 +8,19 @@ on:
   pull_request_target:
     types: [opened]
 
+# Read-only unless a job asks for more.
 permissions:
-  issues: write
-  pull-requests: write
+  contents: read
 
 jobs:
   greet:
     name: Greet first-time contributors
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
     steps:
-      - uses: actions/first-interaction@v3
+      - uses: actions/first-interaction@1c4688942c71f71d4f5502a26ea67c331730fa4d # v3
         with:
           issue_message: |
             👋 Thanks for opening your first issue here! Clear steps to reproduce, what you expected and what actually happened, plus any logs, make it much faster to look into.

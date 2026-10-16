@@ -4,7 +4,9 @@
 # and a few hundred kB of assets.
 
 # --- build stage ---
-FROM node:20-alpine AS build
+# Pinned to a digest as well as a tag: a tag can be re-pointed, a digest
+# cannot. Dependabot (docker ecosystem) bumps the digest when the tag moves.
+FROM node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 AS build
 WORKDIR /app
 
 # The backend origin has to be known at BUILD time, not run time: Vite inlines
@@ -21,15 +23,19 @@ ENV VITE_WS_BASE_URL=$VITE_WS_BASE_URL
 
 # package.json copied and installed BEFORE the source, so Docker can reuse the
 # cached dependency layer whenever only application code has changed.
-COPY package.json ./
-RUN npm install
+# With the lockfile and `npm ci`, the image installs exactly what CI tested.
+# `npm install` without it resolved fresh versions on every build.
+COPY package.json package-lock.json ./
+RUN npm ci
 COPY . .
 # Runs tsc --noEmit first (see package.json), so a type error fails the image
 # build rather than shipping.
 RUN npm run build
 
 # --- serve stage ---
-FROM nginx:1.29-alpine
+# Pinned to a digest as well as a tag: a tag can be re-pointed, a digest
+# cannot. Dependabot (docker ecosystem) bumps the digest when the tag moves.
+FROM nginx:1.30-alpine@sha256:970364228b1e4f932abc22d321932816782cca8a20b85a77552a7cfe9acfb3b5
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Only the built output crosses from the build stage — no source, no
 # node_modules.
