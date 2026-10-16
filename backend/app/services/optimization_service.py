@@ -35,7 +35,6 @@ from app.core.logging import get_logger
 from app.db.session import AsyncSessionLocal
 from app.models.depot import Depot
 from app.models.enums import (
-    OptimizationObjective,
     OptimizationStatus,
     OrderStatus,
     RouteStatus,

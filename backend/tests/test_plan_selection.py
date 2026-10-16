@@ -6,7 +6,7 @@ service dispatches whichever plan actually wins. These tests pin that rule.
 """
 from __future__ import annotations
 
-from app.optimization.types import SolvedRoute, SolvedStop, SolveResult, UnassignedOrder
+from app.optimization.types import SolvedRoute, SolvedStop, SolveResult
 from app.services.optimization_service import _better_plan, _plan_cost
 
 
@@ -20,7 +20,7 @@ def _stop(i: int) -> SolvedStop:
 def _plan(distance_per_route: list[float], stops_per_route: list[int]) -> SolveResult:
     routes = []
     n = 0
-    for idx, (km, count) in enumerate(zip(distance_per_route, stops_per_route), start=1):
+    for idx, (km, count) in enumerate(zip(distance_per_route, stops_per_route, strict=True), start=1):
         stops = []
         for _ in range(count):
             n += 1

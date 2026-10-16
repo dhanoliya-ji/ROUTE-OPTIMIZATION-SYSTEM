@@ -1,0 +1,24 @@
+# Codecov -- posts test coverage on every PR. Free for public repositories.
+#
+# Activate once at https://app.codecov.io (sign in with GitHub). Until then,
+# the upload step in CI is a silent no-op: it can never fail the build.
+
+coverage:
+  status:
+    # Report, never block. A coverage percentage is a hint about where tests
+    # are thin, not a reason to refuse a merge.
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
+
+comment:
+  layout: "condensed_header, condensed_files, condensed_footer"
+
+flag_management:
+  default_rules:
+    # A PR that only touches the frontend still shows the backend's last
+    # known coverage instead of an empty gap.
+    carryforward: true

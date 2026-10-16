@@ -1,0 +1,47 @@
+# OpenSSF Scorecard -- grades this repository's security practices.
+#
+# It checks things like: are dependencies pinned, is CI protected from
+# untrusted PRs, are releases signed, is there a security policy, does
+# anything scan the code. Findings land in the Security tab, and the overall
+# score is published at
+# https://scorecard.dev/viewer/?uri=github.com/<owner>/<repo>
+#
+# The shape of this file is not free-form: to publish results, Scorecard
+# requires that the job use only a fixed set of actions and no `run` steps.
+
+name: OpenSSF Scorecard
+
+on:
+  push:
+    branches: [main, master]
+  schedule:
+    - cron: "23 4 * * 2"   # Tuesdays, 04:23 UTC
+  branch_protection_rule:
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  analysis:
+    name: Scorecard analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write   # upload findings to the Security tab
+      id-token: write          # sign the published results
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # Pinned to a commit, not a tag: a tag can be moved to point at
+      # different code, a commit cannot. (Scorecard checks for this too.)
+      - uses: ossf/scorecard-action@fa7117db83c52d787ae5a89f350999701505d78e # v2.5.0
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+
+      - uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: results.sarif

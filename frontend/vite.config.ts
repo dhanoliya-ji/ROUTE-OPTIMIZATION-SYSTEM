@@ -36,6 +36,14 @@ export default defineConfig({
     // Only our own tests. Without this, Vitest would also try to collect from
     // node_modules.
     include: ["src/**/*.test.{ts,tsx}"],
+    // Coverage, for the Codecov report on each PR (`npm test -- --coverage`).
+    // `include` lists every source file, so a file no test imports counts as
+    // 0% rather than vanishing from the report.
+    coverage: {
+      provider: "v8",
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: ["src/**/*.test.{ts,tsx}", "src/test/**", "src/main.tsx", "src/vite-env.d.ts"],
+    },
     // Report a summary of anything that was not a plain pass, so a skipped
     // file is visible rather than looking like a clean run.
     reporters: "default",
