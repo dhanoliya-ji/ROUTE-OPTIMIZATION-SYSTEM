@@ -1,0 +1,26 @@
+# PR labeler — tags each pull request by which part of the codebase it touches
+# (backend, frontend, docs, ci...), using the path rules in .github/labeler.yml.
+#
+# `pull_request_target` so it can label PRs from forks too. That is safe here
+# only because this job never checks out or runs the PR's code: the labeler
+# reads the list of changed file names through the API, nothing more.
+
+name: PR labeler
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label:
+    name: Label
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v7
+        with:
+          # Removes a label again when a later push no longer touches that area.
+          sync-labels: true

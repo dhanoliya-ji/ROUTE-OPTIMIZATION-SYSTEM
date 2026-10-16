@@ -1,0 +1,57 @@
+# CodeQL — GitHub's own security scanner, free for public repositories.
+#
+# It reads the Python, the TypeScript/JavaScript and these workflow files
+# looking for real vulnerability patterns: SQL injection, path traversal,
+# unsafe deserialisation, script injection in Actions, and so on. Findings
+# land in the Security tab, and on a pull request they appear inline on the
+# lines that introduced them.
+#
+# It runs on pushes, on pull requests, and weekly -- the weekly run matters,
+# because new queries ship all the time and old code can gain a finding
+# without anyone touching it.
+
+name: CodeQL
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  schedule:
+    - cron: "17 3 * * 1"   # Mondays, 03:17 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # None of these need a build: CodeQL reads the source directly.
+        language: [python, javascript-typescript, actions]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+          # The default suite plus the extended security queries. Still
+          # precision-tuned, so it does not bury real findings in noise.
+          queries: security-extended
+
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}
