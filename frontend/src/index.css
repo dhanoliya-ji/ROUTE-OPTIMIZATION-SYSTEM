@@ -1,19 +1,96 @@
-/* Tailwind's three layers, in required order: base resets, then component
-   classes, then utilities — so a utility can always override a component
-   class, which is what makes `className="input max-w-xs"` work. */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind v4. Its output is in native cascade layers, in this order: theme,
+   base resets, components, then utilities — so a utility can always override
+   a component class, which is what makes `className="input max-w-xs"` work.
 
-/* Light only. Tells the browser to render native controls (scrollbars,
-   form widgets) in light mode rather than following the OS setting, which
-   would clash with a UI that has no dark palette. */
-:root {
-  color-scheme: light;
+   Files scanned for class names. Tailwind generates ONLY the utilities it
+   finds here, which is what keeps the stylesheet small. `source(none)` turns
+   off v4's automatic detection (which would also scan the README, docs and
+   tests) so the scan covers exactly what it did under v3.
+
+   Two consequences worth knowing, both from the same cause: the scan is a
+   regex over each file's TEXT, not a parse of its code.
+
+   1. A class assembled at runtime is invisible to it and gets purged. That
+      is why the Leaflet markers in src/utils/map.ts use inline styles
+      rather than Tailwind classes: their markup is a string handed to
+      Leaflet, not source Tailwind can read.
+
+   2. Text inside COMMENTS is scanned too, so an ordinary English word that
+      happens to be a utility name ("hidden", "container", "visible",
+      "static", "transition", "absolute", "grow", "ring") makes Tailwind
+      emit that rule even though nothing uses it. Accepted deliberately,
+      since rewording documentation to dodge common English words would cost
+      more than the bytes are worth. */
+@import "tailwindcss" source(none);
+@source "../index.html";
+@source "./";
+
+@theme {
+  /* Two named scales, and the whole UI is built from them. Sticking to two
+     is what makes the app look like one product. These ADD to Tailwind's
+     own palette (red, green, amber — used by the status badges), which
+     stays available alongside them.
+
+     brand — the accent: primary buttons, active nav, links. */
+  --color-brand-50: #eef4ff;
+  --color-brand-100: #d9e6ff;
+  --color-brand-200: #bcd2ff;
+  --color-brand-300: #8db4ff;
+  --color-brand-400: #578bff;
+  --color-brand-500: #2f66f6;
+  --color-brand-600: #1a4be0;
+  --color-brand-700: #163bb8;
+  --color-brand-800: #183494;
+  --color-brand-900: #192f75;
+
+  /* ink — everything structural. 900 is body text, 500-400 muted text,
+     300-200 borders, 50 the page background. */
+  --color-ink-50: #f6f7f9;
+  --color-ink-100: #eceef2;
+  --color-ink-200: #d5dae2;
+  --color-ink-300: #b0b9c8;
+  --color-ink-400: #8593a8;
+  --color-ink-500: #66748c;
+  --color-ink-600: #515d73;
+  --color-ink-700: #434c5e;
+  --color-ink-800: #3a4150;
+  --color-ink-900: #0f172a;
+
+  /* Inter is loaded from Google Fonts in index.html. The fallbacks matter:
+     if that request is blocked the app still renders in the system font
+     rather than a serif default. */
+  --font-sans: Inter, system-ui, sans-serif;
 }
 
-body {
-  @apply bg-ink-50 text-ink-900 font-sans antialiased;
+@layer base {
+  /* v3 compatibility. v4 changed two defaults that this UI relies on:
+
+     - A bare `border` is now `currentcolor`, not gray-200. Every `border`
+       here without its own colour expects the old light grey.
+     - Buttons now get the default arrow cursor, not a pointer. */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* Light only. Tells the browser to render native controls (scrollbars,
+     form widgets) in light mode rather than following the OS setting, which
+     would clash with a UI that has no dark palette. */
+  :root {
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-ink-50 text-ink-900 font-sans antialiased;
+  }
 }
 
 /* Leaflet needs its container to have an explicit height — it measures the
@@ -23,8 +100,11 @@ body {
 
    The grey background shows while tiles are still loading.
 
+   Deliberately NOT in a layer. leaflet.css (linked in index.html) is
+   unlayered, and unlayered CSS beats every layer whatever its order, so
+   inside a layer this background would lose to Leaflet's own #ddd.
+
    (The marker IMAGES are repaired separately, in src/utils/map.ts.) */
-/* Leaflet marker fix when bundling */
 .leaflet-container {
   width: 100%;
   height: 100%;
@@ -38,30 +118,36 @@ body {
    .label 58. Inlining them would mean 58 copies of the same nine utilities,
    and a restyle would become a find-and-replace.
 
-   Declared inside @layer components so plain utilities still win over them
-   regardless of source order. */
-@layer components {
-  .card {
-    @apply bg-white rounded-xl border border-ink-200 shadow-sm;
-  }
-  /* The shared button base. .btn-primary and .btn-ghost both @apply it, so
-     padding, focus and disabled behaviour are defined exactly once. */
-  .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-  .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700;
-  }
-  .btn-ghost {
-    @apply btn bg-ink-100 text-ink-700 hover:bg-ink-200;
-  }
-  .input {
-    @apply w-full rounded-lg border border-ink-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
-  }
-  .label {
-    @apply block text-xs font-medium text-ink-500 mb-1;
-  }
-  .badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
-  }
+   Declared with @utility, v4's replacement for `@layer components` classes:
+   it is what lets them be @apply'd into each other (.btn-primary builds on
+   .btn), and Tailwind orders them before single-purpose utilities so plain
+   utilities still win over them. */
+@utility card {
+  @apply bg-white rounded-xl border border-ink-200 shadow-xs;
+}
+
+/* The shared button base. .btn-primary and .btn-ghost both @apply it, so
+   padding, focus and disabled behaviour are defined exactly once. */
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+@utility btn-primary {
+  @apply btn bg-brand-600 text-white hover:bg-brand-700;
+}
+
+@utility btn-ghost {
+  @apply btn bg-ink-100 text-ink-700 hover:bg-ink-200;
+}
+
+@utility input {
+  @apply w-full rounded-lg border border-ink-300 px-3 py-2 text-sm outline-hidden focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
+}
+
+@utility label {
+  @apply block text-xs font-medium text-ink-500 mb-1;
+}
+
+@utility badge {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
 }

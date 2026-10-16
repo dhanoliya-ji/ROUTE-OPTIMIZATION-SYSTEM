@@ -114,7 +114,7 @@ export function ErrorState({ message }: { message: string }) {
  * when the data arrives.
  */
 export function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded bg-ink-200 ${className}`} />;
+  return <div className={`animate-pulse rounded-sm bg-ink-200 ${className}`} />;
 }
 
 /**
@@ -127,9 +127,9 @@ export function Skeleton({ className = "" }: { className?: string }) {
 export function ToastHost() {
   const { toasts } = useToast();
   return (
-    // z-[1000] — above Modal's z-[900], so a toast raised by a form's own
+    // z-1000 — above Modal's z-900, so a toast raised by a form's own
     // mutation appears in front of that form rather than behind it.
-    <div className="fixed bottom-4 right-4 z-[1000] flex flex-col gap-2">
+    <div className="fixed bottom-4 right-4 z-1000 flex flex-col gap-2">
       {toasts.map((t) => (
         <div
           key={t.id}
@@ -168,7 +168,7 @@ export function Modal({
   if (!open) return null;
   return (
     // The backdrop closes the modal...
-    <div className="fixed inset-0 z-[900] flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-900 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
       <div
         className={`card max-h-[90vh] w-full overflow-y-auto p-5 ${wide ? "max-w-3xl" : "max-w-lg"}`}
         // ...but the panel does not. Without this stopPropagation, a click

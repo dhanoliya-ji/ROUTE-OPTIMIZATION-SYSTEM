@@ -53,7 +53,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-ink-900 to-brand-900 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-ink-900 to-brand-900 p-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center text-white">
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-xl font-bold">
