@@ -1,0 +1,82 @@
+# Trivy -- scans the Docker images this repository ships.
+#
+# CodeQL reads the source and Dependabot watches the dependency files, but
+# neither looks at the finished image: the base OS, the apt packages and
+# everything pip/npm actually installed inside it. That is what this does.
+# Findings land in the Security tab, one category per image.
+#
+# It reports and never blocks. A HIGH in a base-image package often has no
+# fix yet, and a red build you cannot act on teaches people to ignore red.
+#
+# Building images is slow, so this runs on pushes to the default branch,
+# weekly (new CVEs appear for old images), by hand, and on PRs only when they
+# touch something that changes an image.
+
+name: Trivy
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    paths:
+      - "backend/Dockerfile"
+      - "backend/requirements.txt"
+      - "frontend/Dockerfile"
+      - "frontend/package.json"
+      - "frontend/package-lock.json"
+      - "frontend/nginx.conf"
+      - ".github/workflows/trivy.yml"
+  schedule:
+    - cron: "41 3 * * 3"   # Wednesdays, 03:41 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  scan:
+    name: Scan ${{ matrix.image.name }} image
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - { name: backend, dockerfile: backend/Dockerfile, context: backend }
+          - { name: frontend, dockerfile: frontend/Dockerfile, context: frontend }
+
+    steps:
+      - name: Free disk space
+        # A hosted runner starts with ~14 GB free; the SDKs below are never
+        # used here and give back ~20 GB, enough for an image with PyTorch.
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+
+      - uses: actions/checkout@v4
+
+      - name: Build the image
+        run: docker build -t scan-target:${{ matrix.image.name }} -f ${{ matrix.image.dockerfile }} ${{ matrix.image.context }}
+
+      - name: Scan
+        # Pinned to a commit rather than a tag: trivy-action has had a
+        # security advisory this year, and a tag can be moved to point at
+        # different code. Versions 0.31.0-0.34.0 were affected; this is newer.
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: scan-target:${{ matrix.image.name }}
+          format: sarif
+          output: trivy-${{ matrix.image.name }}.sarif
+          severity: CRITICAL,HIGH
+          # Only report what can be fixed today by upgrading something.
+          ignore-unfixed: true
+          exit-code: "0"
+
+      - uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-${{ matrix.image.name }}.sarif
+          category: trivy-${{ matrix.image.name }}
