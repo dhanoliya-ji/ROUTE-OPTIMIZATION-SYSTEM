@@ -127,3 +127,23 @@ class TestDatabaseUrlNormalisation:
         s = _settings(database_url="postgresql+asyncpg://u:p@host/db")
         assert s.database_url == "postgresql+asyncpg://u:p@host/db"
         assert s.database_url_sync == "postgresql+psycopg://u:p@host/db"
+
+    def test_neon_style_tls_options_are_translated_per_driver(self):
+        # Exactly the shape Neon hands out. asyncpg rejects `sslmode` and
+        # `channel_binding` outright, so before this translation the app could
+        # not connect to Neon at all -- while Alembic (psycopg) was fine.
+        s = _settings(
+            database_url="postgresql://u:p@ep-x-pooler.eu-central-1.aws.neon.tech/db"
+            "?sslmode=require&channel_binding=require"
+        )
+        assert s.database_url == (
+            "postgresql+asyncpg://u:p@ep-x-pooler.eu-central-1.aws.neon.tech/db?ssl=require"
+        )
+        assert s.database_url_sync == (
+            "postgresql+psycopg://u:p@ep-x-pooler.eu-central-1.aws.neon.tech/db?sslmode=require"
+        )
+
+    def test_unrelated_query_options_survive(self):
+        s = _settings(database_url="postgresql://u:p@h/db?application_name=routeos&sslmode=disable")
+        assert s.database_url.endswith("/db?application_name=routeos&ssl=disable")
+        assert s.database_url_sync.endswith("/db?application_name=routeos&sslmode=disable")
