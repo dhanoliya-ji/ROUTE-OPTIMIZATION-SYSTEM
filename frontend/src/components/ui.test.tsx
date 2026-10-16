@@ -198,10 +198,10 @@ describe("ToastHost", () => {
   });
 
   it("sits above the modal, so a form's own error is visible", () => {
-    // z-[1000] against Modal's z-[900]. Reversed, a toast raised by a form's
+    // z-1000 against Modal's z-900. Reversed, a toast raised by a form's
     // mutation would render behind that form.
     useToast.setState({ toasts: [{ id: 1, message: "x", kind: "info" }] });
     const { container } = render(<ToastHost />);
-    expect((container.firstElementChild as HTMLElement).className).toContain("z-[1000]");
+    expect((container.firstElementChild as HTMLElement).className).toContain("z-1000");
   });
 });
