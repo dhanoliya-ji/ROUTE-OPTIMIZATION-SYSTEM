@@ -1,0 +1,51 @@
+# Release notes layout for Release Drafter (.github/workflows/release-drafter.yml).
+#
+# Sections come from labels. Area labels (backend, frontend, ...) are added
+# automatically by the PR labeler; bug / enhancement / security are added by
+# the AI issue triage or by hand. A PR is listed once, under the first section
+# whose label it has.
+
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+
+categories:
+  - title: "✨ New features"
+    labels: [enhancement]
+  - title: "🐛 Bug fixes"
+    labels: [bug]
+  - title: "🔒 Security"
+    labels: [security]
+  - title: "🖥️ Backend"
+    labels: [backend, database, optimization, rag, judge]
+  - title: "🎨 Frontend"
+    labels: [frontend]
+  - title: "🐳 Infrastructure"
+    labels: [infra]
+  - title: "📚 Documentation"
+    labels: [documentation]
+  - title: "🧪 Tests and CI"
+    labels: [tests, ci]
+  - title: "📦 Dependencies"
+    labels: [dependencies]
+    collapse-after: 5
+
+change-template: "- $TITLE (#$NUMBER)"
+change-title-escapes: '\<*_&'
+
+# The next version number: a `breaking` label bumps major, `enhancement`
+# bumps minor, anything else bumps the patch number.
+version-resolver:
+  major:
+    labels: [breaking]
+  minor:
+    labels: [enhancement]
+  default: patch
+
+exclude-labels: [skip-changelog]
+
+template: |
+  ## What's changed
+
+  $CHANGES
+
+  **Full changelog:** https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION

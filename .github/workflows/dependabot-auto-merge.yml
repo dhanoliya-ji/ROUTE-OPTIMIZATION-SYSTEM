@@ -1,0 +1,49 @@
+# Dependabot auto-merge -- merges low-risk dependency updates by itself, but
+# only after every required check has passed.
+#
+# WHAT IT MERGES
+#   - patch updates (1.2.3 -> 1.2.4), in any ecosystem
+#   - minor updates to GitHub Actions (pinned by SHA, and they only run in CI)
+# Everything else waits for a person. "The tests pass" is not proof that a
+# minor release changed nothing: SQLAlchemy 2.1 was a minor release, and it
+# broke two of these repositories in ways only a person reading the PR saw.
+#
+# HOW IT STAYS SAFE
+#   `gh pr merge --auto` does not merge now. It asks GitHub to merge once the
+#   branch protection's required checks are green, so a failing test means it
+#   never merges. The bcrypt 5 bump that broke login would have stayed open.
+#
+# One limit worth knowing: a merge made this way does not trigger the
+# workflows that run on pushes to the default branch (a GitHub rule for merges
+# made with the built-in token). The PR's own checks already covered the code,
+# and the next ordinary merge catches the rest up.
+
+name: Dependabot auto-merge
+
+on: pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  auto-merge:
+    name: Enable auto-merge
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Read the update's metadata
+        id: meta
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+
+      - name: Queue the merge
+        if: >-
+          steps.meta.outputs.update-type == 'version-update:semver-patch' ||
+          (steps.meta.outputs.package-ecosystem == 'github_actions' &&
+           steps.meta.outputs.update-type == 'version-update:semver-minor')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --squash "$PR_URL"

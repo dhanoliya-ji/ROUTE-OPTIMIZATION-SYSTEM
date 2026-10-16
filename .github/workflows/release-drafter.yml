@@ -1,0 +1,28 @@
+# Release Drafter -- keeps a draft release up to date as PRs are merged.
+#
+# Every merge to the default branch adds that PR to a draft on the Releases
+# page, sorted into sections by the labels the PR labeler already applies.
+# Nothing is published automatically: when you want a release, open the
+# draft, adjust the notes or version if you like, and click Publish.
+
+name: Release Drafter
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  draft:
+    name: Update the draft release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # create and edit the draft release
+      pull-requests: read    # read merged PRs and their labels
+    steps:
+      - uses: release-drafter/release-drafter@978bb0b30c5ee8cdd332ced253758157150d43f0 # v7.10.0
+        with:
+          token: ${{ github.token }}
