@@ -27,8 +27,8 @@ prometheus-client==0.26.0
 tenacity==9.2.1
 
 # --- test / dev ---
-pytest==8.3.4
-pytest-asyncio==0.25.0
+pytest==9.1.1
+pytest-asyncio==1.4.0
 # NOTE: no aiosqlite. The DB-backed tests use a real PostGIS instance, because
 # the app depends on Geography columns, JSONB, date_trunc and ST_DWithin —
 # none of which SQLite has, so testing on it would stub out the code under
