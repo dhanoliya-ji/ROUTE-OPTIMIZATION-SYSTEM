@@ -1,9 +1,8 @@
 /* Tailwind's three layers, in required order: base resets, then component
    classes, then utilities — so a utility can always override a component
    class, which is what makes `className="input max-w-xs"` work. */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 /* Light only. Tells the browser to render native controls (scrollbars,
    form widgets) in light mode rather than following the OS setting, which
@@ -13,7 +12,11 @@
 }
 
 body {
-  @apply bg-ink-50 text-ink-900 font-sans antialiased;
+  background-color: #f6f7f9;
+  color: #0f172a;
+  font-family: Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Leaflet needs its container to have an explicit height — it measures the
@@ -36,32 +39,68 @@ body {
    These exist despite Tailwind favouring utilities, because each is a long
    utility string repeated dozens of times — .input appears 37 times and
    .label 58. Inlining them would mean 58 copies of the same nine utilities,
-   and a restyle would become a find-and-replace.
-
-   Declared inside @layer components so plain utilities still win over them
-   regardless of source order. */
-@layer components {
-  .card {
-    @apply bg-white rounded-xl border border-ink-200 shadow-sm;
-  }
-  /* The shared button base. .btn-primary and .btn-ghost both @apply it, so
-     padding, focus and disabled behaviour are defined exactly once. */
-  .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-  .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700;
-  }
-  .btn-ghost {
-    @apply btn bg-ink-100 text-ink-700 hover:bg-ink-200;
-  }
-  .input {
-    @apply w-full rounded-lg border border-ink-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
-  }
-  .label {
-    @apply block text-xs font-medium text-ink-500 mb-1;
-  }
-  .badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
-  }
+   and a restyle would become a find-and-replace. */
+.card {
+  background: #fff;
+  border: 1px solid #d5dae2;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+}
+/* The shared button base. .btn-primary and .btn-ghost both reuse it, so
+   padding, focus and disabled behaviour are defined exactly once. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: #1a4be0;
+  color: #fff;
+}
+.btn-primary:hover {
+  background: #163bb8;
+}
+.btn-ghost {
+  background: #eceef2;
+  color: #434c5e;
+}
+.btn-ghost:hover {
+  background: #d5dae2;
+}
+.input {
+  width: 100%;
+  border: 1px solid #b0b9c8;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+.input:focus {
+  border-color: #2f66f6;
+  box-shadow: 0 0 0 2px #d9e6ff;
+}
+.label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #66748c;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.125rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
