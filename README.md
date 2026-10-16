@@ -12,12 +12,18 @@ re-optimization built in.
 
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](#)
 [![FastAPI](https://img.shields.io/badge/FastAPI-async-009688?logo=fastapi&logoColor=white)](#)
-[![React](https://img.shields.io/badge/React-18_·_TypeScript-61DAFB?logo=react&logoColor=black)](#)
+[![React](https://img.shields.io/badge/React-19_·_TypeScript-61DAFB?logo=react&logoColor=black)](#)
 [![PostGIS](https://img.shields.io/badge/PostgreSQL-16_·_PostGIS-336791?logo=postgresql&logoColor=white)](#)
 [![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white)](#)
 [![OR-Tools](https://img.shields.io/badge/Google-OR--Tools-4285F4?logo=google&logoColor=white)](#)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](#)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+[![CI](https://github.com/dhanoliya-ji/ROUTE-OPTIMIZATION-SYSTEM/actions/workflows/ci.yml/badge.svg)](https://github.com/dhanoliya-ji/ROUTE-OPTIMIZATION-SYSTEM/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/dhanoliya-ji/ROUTE-OPTIMIZATION-SYSTEM/actions/workflows/codeql.yml/badge.svg)](https://github.com/dhanoliya-ji/ROUTE-OPTIMIZATION-SYSTEM/actions/workflows/codeql.yml)
+[![codecov](https://codecov.io/gh/dhanoliya-ji/ROUTE-OPTIMIZATION-SYSTEM/branch/master/graph/badge.svg)](https://codecov.io/gh/dhanoliya-ji/ROUTE-OPTIMIZATION-SYSTEM)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/dhanoliya-ji/ROUTE-OPTIMIZATION-SYSTEM/badge)](https://scorecard.dev/viewer/?uri=github.com/dhanoliya-ji/ROUTE-OPTIMIZATION-SYSTEM)
+[![Release](https://img.shields.io/github/v/release/dhanoliya-ji/ROUTE-OPTIMIZATION-SYSTEM)](https://github.com/dhanoliya-ji/ROUTE-OPTIMIZATION-SYSTEM/releases/latest)
 
 ### [▶ Live Demo](https://routeos-frontend.onrender.com) · [API Docs](https://routeos-backend-h5x6.onrender.com/docs) · [Health](https://routeos-backend-h5x6.onrender.com/health)
 
