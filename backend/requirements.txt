@@ -1,7 +1,7 @@
-fastapi==0.143.0
+fastapi==0.143.2
 uvicorn[standard]==0.54.0
 pydantic==2.14.1
-pydantic-settings==2.15.0
+pydantic-settings==2.16.0
 email-validator==2.3.0
 # [asyncio] pulls in greenlet, which the async engine needs. SQLAlchemy 2.0
 # installed it by default; 2.1 does not, and every DB test failed to import.
