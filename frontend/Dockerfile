@@ -35,7 +35,7 @@ RUN npm run build
 # --- serve stage ---
 # Pinned to a digest as well as a tag: a tag can be re-pointed, a digest
 # cannot. Dependabot (docker ecosystem) bumps the digest when the tag moves.
-FROM nginx:1.30-alpine@sha256:970364228b1e4f932abc22d321932816782cca8a20b85a77552a7cfe9acfb3b5
+FROM nginx:1.31-alpine@sha256:892bb2152464f0c5d8972593a5f5afaf8054552580b699d95f8ff4af08c2d33d
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Only the built output crosses from the build stage — no source, no
 # node_modules.
