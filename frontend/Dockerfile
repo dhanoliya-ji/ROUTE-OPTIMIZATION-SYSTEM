@@ -6,7 +6,7 @@
 # --- build stage ---
 # Pinned to a digest as well as a tag: a tag can be re-pointed, a digest
 # cannot. Dependabot (docker ecosystem) bumps the digest when the tag moves.
-FROM node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 AS build
+FROM node:22-alpine@sha256:fe4f6d74e20370acb04ad889077d14d0f64a9c8ea6a42bc60cddf1e844699914 AS build
 WORKDIR /app
 
 # The backend origin has to be known at BUILD time, not run time: Vite inlines
